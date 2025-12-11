@@ -1,0 +1,173 @@
+@startuml
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 50
+
+title Medstrack Backend Architecture (Updated)
+
+'─────────────────────────────────────────────────────────────
+'  CONTROLADORES
+'─────────────────────────────────────────────────────────────
+package "com.medstrack.Medstrack.controller" {
+  class UsuarioController {
+    + registro(@Valid RegisterUserDTO dto): ResponseEntity<String>
+  }
+  note bottom of UsuarioController
+    @RestController
+    @PostMapping("/api/usuarios/registro")
+
+    INPUT:
+      - HTTP POST con JSON (RegisterUserDTO)
+      - Validaciones automáticas (@Valid)
+
+    FLUJO:
+      - Llama a UserService.registrarUsuario(dto)
+
+    OUTPUT:
+      - JSON (éxito o error)
+      - Manejado con @ExceptionHandler global
+  end note
+}
+
+'─────────────────────────────────────────────────────────────
+'  DTO
+'─────────────────────────────────────────────────────────────
+package "com.medstrack.Medstrack.dto" {
+  class RegisterUserDTO {
+    - correo: String
+    - nombre: String
+    - password: String
+    + getCorreo(): String
+    + setCorreo(String): void
+    + getNombre(): String
+    + setNombre(String): void
+    + getPassword(): String
+    + setPassword(String): void
+  }
+  note right of RegisterUserDTO
+    INPUT:
+      Datos enviados por cliente:
+        • correo
+        • nombre
+        • password
+
+    VALIDACIONES:
+      • @NotBlank
+      • @Email
+      • @Size(8-12)
+
+    OUTPUT:
+      Objeto validado → enviado a Service Layer
+  end note
+}
+
+'─────────────────────────────────────────────────────────────
+'  SERVICE
+'─────────────────────────────────────────────────────────────
+package "com.medstrack.Medstrack.service" {
+  class UserService {
+    - repository: UserRepository
+    - passwordEncoder: PasswordEncoder
+    + registrarUsuario(RegisterUserDTO dto): void throws Exception
+  }
+  note bottom of UserService
+    @Service
+    INYECCIÓN:
+      - repository (acceso DB)
+      - passwordEncoder (BCrypt)
+
+    FLUJO DE LÓGICA:
+      1. Verificar si correo ya existe
+      2. Crear entidad User
+      3. Mapear DTO → User
+      4. Encriptar password (BCrypt)
+      5. Guardar en DB con repository.save()
+  end note
+}
+
+'─────────────────────────────────────────────────────────────
+'  REPOSITORY
+'─────────────────────────────────────────────────────────────
+package "com.medstrack.Medstrack.repository" {
+  interface UserRepository {
+    + findByCorreo(String correo): Optional<User>
+    + save(S entity): S
+    + findById(Long id): Optional<User>
+    + findAll(): List<User>
+    + deleteById(Long id): void
+  }
+  note bottom of UserRepository
+    Extiende JpaRepository<User, Long>
+
+    RESPONSABILIDADES:
+      • Acceso a datos
+      • CRUD automático
+      • findByCorreo para verificar duplicados
+      • Mapeo JPA/Hibernate ↔ PostgreSQL
+  end note
+}
+
+'─────────────────────────────────────────────────────────────
+'  MODEL
+'─────────────────────────────────────────────────────────────
+package "com.medstrack.Medstrack.model" {
+  class User {
+    - id: Long
+    - correo: String
+    - nombre: String
+    - password: String
+  }
+  note right of User
+    @Entity @Table("users")
+
+    CAMPOS:
+      - id (PK, autogenerado)
+      - correo (único)
+      - nombre
+      - password (BCrypt)
+
+    OBJETIVO:
+      Representa registro persistido en DB
+  end note
+}
+
+'─────────────────────────────────────────────────────────────
+'  RELACIONES
+'─────────────────────────────────────────────────────────────
+UsuarioController --> UserService : Llama registrarUsuario()
+UsuarioController --> RegisterUserDTO : Recibe y valida DTO
+UserService --> UserRepository : findByCorreo(), save()
+UserService --> PasswordEncoder : BCrypt.encode()
+UserService --> User : Crea entidad
+UserRepository --> User : CRUD
+UserRepository -|> JpaRepository
+
+'─────────────────────────────────────────────────────────────
+'  DATABASE
+'─────────────────────────────────────────────────────────────
+cloud "PostgreSQL Database" {
+  note bottom
+    Persistencia final del usuario:
+
+    TABLE: usuarios
+      • id (PK)
+      • correo (unique)
+      • nombre
+      • password (hashed con BCrypt)
+
+    Acceso mediante:
+      Spring Data JPA + Hibernate
+  end note
+}
+UserRepository --> "PostgreSQL Database" : Persistencia / Queries
+
+
+'─────────────────────────────────────────────────────────────
+'  NOTA DE AUTOR
+'─────────────────────────────────────────────────────────────
+note bottom
+  📌 Diseño de arquitectura realizado por
+  **Ingeniero Felipe Antonio Sulez Gómez**
+end note
+
+@enduml
