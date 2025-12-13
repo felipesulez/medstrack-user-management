@@ -1,42 +1,42 @@
-name: Render PlantUML Diagrams
+name: Generate PlantUML Diagram
 
 on:
   push:
     paths:
-      - "docs/**/*.puml"
+      - "docs/diagrams/**/*.puml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  render:
+  build-diagram:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
-          distribution: temurin
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
-      - name: Download PlantUML
+      - name: Install PlantUML
         run: |
-          curl -L https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar \
-            -o plantuml.jar
+          sudo apt-get update
+          sudo apt-get install -y plantuml
 
-      - name: Render diagrams (PNG + SVG)
+      - name: Generate PNG from PlantUML
         run: |
-          find docs -name "*.puml" -print0 | while IFS= read -r -d '' file; do
-            java -jar plantuml.jar -tpng "$file"
-            java -jar plantuml.jar -tsvg "$file"
-          done
+          plantuml -tpng docs/diagrams/medstrack-architecture.puml -o docs/diagrams
 
-      - name: Commit generated diagrams
+      - name: Commit and push diagram
         run: |
-          git config user.name "plantuml-bot"
-          git config user.email "plantuml-bot@github.com"
-
-          git add docs
-          git diff --cached --quiet || git commit -m "chore(diagrams): auto-render PlantUML diagrams"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add docs/diagrams/*.png
+          git diff --cached --quiet || git commit -m "docs: auto-generate PlantUML diagram"
           git push
 
