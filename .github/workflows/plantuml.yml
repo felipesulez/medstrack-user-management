@@ -6,9 +6,6 @@ on:
       - "docs/diagrams/**/*.puml"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build-diagram:
     runs-on: ubuntu-latest
@@ -31,12 +28,4 @@ jobs:
       - name: Generate PNG from PlantUML
         run: |
           plantuml -tpng docs/diagrams/medstrack-architecture.puml -o docs/diagrams
-
-      - name: Commit and push diagram
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add docs/diagrams/*.png
-          git diff --cached --quiet || git commit -m "docs: auto-generate PlantUML diagram"
-          git push
 
