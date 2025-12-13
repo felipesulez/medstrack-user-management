@@ -1,0 +1,42 @@
+name: Render PlantUML Diagrams
+
+on:
+  push:
+    paths:
+      - "docs/**/*.puml"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Download PlantUML
+        run: |
+          curl -L https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar \
+            -o plantuml.jar
+
+      - name: Render diagrams (PNG + SVG)
+        run: |
+          find docs -name "*.puml" -print0 | while IFS= read -r -d '' file; do
+            java -jar plantuml.jar -tpng "$file"
+            java -jar plantuml.jar -tsvg "$file"
+          done
+
+      - name: Commit generated diagrams
+        run: |
+          git config user.name "plantuml-bot"
+          git config user.email "plantuml-bot@github.com"
+
+          git add docs
+          git diff --cached --quiet || git commit -m "chore(diagrams): auto-render PlantUML diagrams"
+          git push
+
