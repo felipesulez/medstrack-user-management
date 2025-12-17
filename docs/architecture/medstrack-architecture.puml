@@ -1,4 +1,7 @@
 @startuml
+!define COMMIT_SHA "desconocido"
+!define BUILD_DATE "desconocido"
+
 skinparam linetype ortho
 skinparam nodesep 50
 skinparam ranksep 50
@@ -135,7 +138,7 @@ package "com.medstrack.Medstrack.model" {
 '  SPRING / FRAMEWORK
 '─────────────────────────────────────────────────────────────
 package "org.springframework.data.jpa.repository" {
-  interface JpaRepository
+  interface JpaRepository<T, ID>
 }
 
 package "org.springframework.security.crypto.password" {
@@ -173,9 +176,11 @@ cloud "PostgreSQL Database" {
 UserRepository --> "PostgreSQL Database" : Persistencia / Queries
 
 '─────────────────────────────────────────────────────────────
-'  NOTA DE AUTOR
+'  INFORMACIÓN DE VERSION
 '─────────────────────────────────────────────────────────────
 note bottom
+  Commit: COMMIT_SHA
+  Fecha: BUILD_DATE
   📌 Diseño de arquitectura realizado por
   **Ingeniero Felipe Sulez Gómez**
 end note
