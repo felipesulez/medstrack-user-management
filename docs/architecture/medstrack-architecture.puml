@@ -1,189 +1,38 @@
 @startuml
-!define COMMIT_SHA "desconocido"
-!define BUILD_DATE "desconocido"
+title Arquitectura Backend Medstrack - Enfoque en Seguridad
 
-skinparam linetype ortho
-skinparam nodesep 50
-skinparam ranksep 50
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
 
-title Medstrack Backend Architecture run and test 
+actor "Cliente / Frontend" as Client
 
-'─────────────────────────────────────────────────────────────
-'  CONTROLADORES
-'─────────────────────────────────────────────────────────────
-package "com.medstrack.Medstrack.controller" {
-  class UsuarioController {
-    + registro(@Valid RegisterUserDTO dto): ResponseEntity<String>
-  }
-  note bottom of UsuarioController
-    @RestController
-    @PostMapping("/api/usuarios/registro")
-
-    INPUT:
-      - HTTP POST con JSON (RegisterUserDTO)
-      - Validaciones automáticas (@Valid)
-
-    FLUJO:
-      - Llama a UserService.registrarUsuario(dto)
-
-    OUTPUT:
-      - JSON (éxito o error)
-      - Manejado con @ExceptionHandler global
-  end note
+package "Capa de Presentación" {
+  [UserController] as Controller
 }
 
-'─────────────────────────────────────────────────────────────
-'  DTO
-'─────────────────────────────────────────────────────────────
-package "com.medstrack.Medstrack.dto" {
-  class RegisterUserDTO {
-    - correo: String
-    - nombre: String
-    - password: String
-    + getCorreo(): String
-    + setCorreo(String): void
-    + getNombre(): String
-    + setNombre(String): void
-    + getPassword(): String
-    + setPassword(String): void
-  }
-  note right of RegisterUserDTO
-    INPUT:
-      Datos enviados por cliente:
-        • correo
-        • nombre
-        • password
-
-    VALIDACIONES:
-      • @NotBlank
-      • @Email
-      • @Size(8-12)
-
-    OUTPUT:
-      Objeto validado → enviado a Service Layer
-  end note
+package "Capa de Negocio" {
+  [UserService] as Service
+  [SecurityUtils / BCrypt] as Crypto <<Security>>
 }
 
-'─────────────────────────────────────────────────────────────
-'  SERVICE
-'─────────────────────────────────────────────────────────────
-package "com.medstrack.Medstrack.service" {
-  class UserService {
-    - repository: UserRepository
-    - passwordEncoder: PasswordEncoder
-    + registrarUsuario(RegisterUserDTO dto): void throws Exception
-  }
-  note bottom of UserService
-    @Service
-    INYECCIÓN:
-      - repository (acceso DB)
-      - passwordEncoder (BCrypt)
-
-    FLUJO DE LÓGICA:
-      1. Verificar si correo ya existe
-      2. Crear entidad User
-      3. Mapear DTO → User
-      4. Encriptar password (BCrypt)
-      5. Guardar en DB con repository.save()
-  end note
+package "Capa de Persistencia" {
+  [UserRepository] as Repo
+  database "PostgreSQL" as DB
 }
 
-'─────────────────────────────────────────────────────────────
-'  REPOSITORY
-'─────────────────────────────────────────────────────────────
-package "com.medstrack.Medstrack.repository" {
-  interface UserRepository {
-    + findByCorreo(String correo): Optional<User>
-    + save(S entity): S
-    + findById(Long id): Optional<User>
-    + findAll(): List<User>
-    + deleteById(Long id): void
-  }
-  note bottom of UserRepository
-    Extiende JpaRepository<User, Long>
+' Flujo de trabajo
+Client -> Controller : POST /register (DTO)
+Controller -> Service : validate & process
+Service -> Crypto : hashPassword(raw)
+Crypto -> Service : hashed_password
+Service -> Repo : save(UserEntity)
+Repo -> DB : INSERT
 
-    RESPONSABILIDADES:
-      • Acceso a datos
-      • CRUD automático
-      • findByCorreo para verificar duplicados
-      • Mapeo JPA/Hibernate ↔ PostgreSQL
-  end note
-}
-
-'─────────────────────────────────────────────────────────────
-'  MODEL
-'─────────────────────────────────────────────────────────────
-package "com.medstrack.Medstrack.model" {
-  class User {
-    - id: Long
-    - correo: String
-    - nombre: String
-    - password: String
-  }
-  note right of User
-    @Entity @Table("users")
-
-    CAMPOS:
-      - id (PK, autogenerado)
-      - correo (único)
-      - nombre
-      - password (BCrypt)
-
-    OBJETIVO:
-      Representa registro persistido en DB
-  end note
-}
-
-'─────────────────────────────────────────────────────────────
-'  SPRING / FRAMEWORK
-'─────────────────────────────────────────────────────────────
-package "org.springframework.data.jpa.repository" {
-  interface JpaRepository<T, ID>
-}
-
-package "org.springframework.security.crypto.password" {
-  interface PasswordEncoder
-}
-
-'─────────────────────────────────────────────────────────────
-'  RELACIONES
-'─────────────────────────────────────────────────────────────
-UsuarioController --> UserService : Llama registrarUsuario()
-UsuarioController --> RegisterUserDTO : Recibe y valida DTO
-UserService --> UserRepository : findByCorreo(), save()
-UserService --> PasswordEncoder : BCrypt.encode()
-UserService --> User : Crea entidad
-UserRepository --> User : CRUD
-UserRepository -|> JpaRepository
-
-'─────────────────────────────────────────────────────────────
-'  DATABASE
-'─────────────────────────────────────────────────────────────
-cloud "PostgreSQL Database" {
-  note bottom
-    Persistencia final del usuario:
-
-    TABLE: usuarios
-      • id (PK)
-      • correo (unique)
-      • nombre
-      • password (hashed con BCrypt)
-
-    Acceso mediante:
-      Spring Data JPA + Hibernate
-  end note
-}
-UserRepository --> "PostgreSQL Database" : Persistencia / Queries
-
-'─────────────────────────────────────────────────────────────
-'  INFORMACIÓN DE VERSION
-'─────────────────────────────────────────────────────────────
-note bottom
-  Commit: COMMIT_SHA
-  Fecha: BUILD_DATE
-  📌 Diseño de arquitectura realizado por
-  **Ingeniero Felipe Sulez Gómez**
+note right of Crypto
+  **BCrypt Hashing**
+  * Generación de Salt
+  * Hashing iterativo
+  * No reversible
 end note
 
 @enduml
-
