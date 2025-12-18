@@ -39,8 +39,8 @@ persistencia sin afectar la lógica de negocio.
 ### Documentación de arquitectura automatizada
 La arquitectura del sistema se documenta utilizando PlantUML y se genera automáticamente
 mediante GitHub Actions, garantizando que los diagramas estén siempre alineados con el código.
----
 
+---
 ## Arquitectura
 
 El siguiente diagrama representa la arquitectura general del microservicio
