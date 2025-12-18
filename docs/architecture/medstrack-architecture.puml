@@ -1,38 +1,83 @@
 @startuml
-title Arquitectura Backend Medstrack - Enfoque en Seguridad
+!define COMMIT_SHA "desconocido"
+!define BUILD_DATE "desconocido"
 
-skinparam componentStyle uml2
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 40
 skinparam packageStyle rectangle
+skinparam shadowing false
 
-actor "Cliente / Frontend" as Client
+title Medstrack Backend – C4 Architecture (Run & Test)
 
-package "Capa de Presentación" {
-  [UserController] as Controller
+'====================================================
+' C4 – PERSON / CLIENT
+'====================================================
+actor "API Client\n(Web / Mobile / Tests)" as Client
+
+'====================================================
+' C4 – CONTAINER
+'====================================================
+package "Medstrack Backend\n(Spring Boot)" {
+
+  package "Controller Layer" {
+    component "UsuarioController\n@RestController" as Controller
+  }
+
+  package "Service Layer" {
+    component "UserService\n@Business Logic" as Service
+  }
+
+  package "Persistence Layer" {
+    component "UserRepository\n(Spring Data JPA)" as Repository
+  }
 }
 
-package "Capa de Negocio" {
-  [UserService] as Service
-  [SecurityUtils / BCrypt] as Crypto <<Security>>
-}
+'====================================================
+' C4 – DATABASE
+'====================================================
+database "PostgreSQL\nUser Database" as DB
 
-package "Capa de Persistencia" {
-  [UserRepository] as Repo
-  database "PostgreSQL" as DB
-}
+'====================================================
+' RELATIONSHIPS (C4 style)
+'====================================================
+Client --> Controller : HTTP POST\n/api/usuarios/registro
+Controller --> Service : registrarUsuario(dto)
+Service --> Repository : findByCorreo()\nsave()
+Repository --> DB : CRUD (JPA/Hibernate)
 
-' Flujo de trabajo
-Client -> Controller : POST /register (DTO)
-Controller -> Service : validate & process
-Service -> Crypto : hashPassword(raw)
-Crypto -> Service : hashed_password
-Service -> Repo : save(UserEntity)
-Repo -> DB : INSERT
+'====================================================
+' NOTES (Architecture intent)
+'====================================================
+note right of Controller
+  Responsabilidad:
+  - Exponer API REST
+  - Validar DTOs (@Valid)
+  - Manejar HTTP status
+end note
 
-note right of Crypto
-  **BCrypt Hashing**
-  * Generación de Salt
-  * Hashing iterativo
-  * No reversible
+note right of Service
+  Responsabilidad:
+  - Reglas de negocio
+  - Validación de duplicados
+  - Encriptación de password (BCrypt)
+end note
+
+note right of Repository
+  Responsabilidad:
+  - Acceso a datos
+  - Abstracción JPA
+  - Sin lógica de negocio
+end note
+
+note bottom
+  Commit: COMMIT_SHA
+  Build date: BUILD_DATE
+
+  ✔ Arquitectura en capas
+  ✔ Alineada con C4 Model
+  ✔ Enfocada en testabilidad y evolución
 end note
 
 @enduml
+
