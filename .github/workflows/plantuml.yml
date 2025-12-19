@@ -6,6 +6,9 @@ on:
       - "docs/architecture/**/*.puml"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-diagram:
     runs-on: ubuntu-latest
