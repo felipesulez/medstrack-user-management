@@ -6,47 +6,37 @@ on:
       - "docs/architecture/**/*.puml"
   workflow_dispatch:
 
-# Permisos necesarios para hacer commit y push
-permissions:
-  contents: write
-
 jobs:
   build-diagram:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del repositorio
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Java (requerido por PlantUML)
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
 
-      # 3. Instalar PlantUML
       - name: Install PlantUML
         run: |
           sudo apt-get update
           sudo apt-get install -y plantuml
 
-      # 4. Generar PNG y SVG junto al .puml
-      - name: Generate diagrams from PlantUML
-        run: |
-          plantuml -tpng docs/architecture/medstrack-architecture.puml
-          plantuml -tsvg docs/architecture/medstrack-architecture.puml
+      - name: Create output directory
+        run: mkdir -p docs/diagrams
 
-      # 5. Commit y push (evita loop infinito)
-      - name: Commit and push diagrams
-        if: github.actor != 'github-actions[bot]'
+      - name: Generate SVG from PlantUML (ignore warnings)
+        run: |
+          plantuml -tsvg docs/architecture/medstrack-architecture.puml -o docs/diagrams || true
+
+      - name: Commit and push diagram
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-
-          git add docs/architecture/*.png docs/architecture/*.svg
-          git diff --cached --quiet || git commit -m "Auto-generated architecture diagram"
-
+          git add docs/diagrams/*.svg
+          git commit -m "Auto-generated architecture diagram" || echo "No changes to commit"
           git push
 
