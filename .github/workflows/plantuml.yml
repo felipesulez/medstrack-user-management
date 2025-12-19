@@ -6,9 +6,6 @@ on:
       - "docs/architecture/**/*.puml"
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build-diagram:
     runs-on: ubuntu-latest
@@ -16,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -30,18 +25,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y plantuml
 
-      - name: Create output directory
-        run: mkdir -p docs/diagrams
-
       - name: Generate SVG from PlantUML (ignore warnings)
         run: |
+          mkdir -p docs/diagrams
           plantuml -tsvg docs/architecture/medstrack-architecture.puml -o docs/diagrams || true
-
-      - name: Commit and push diagram
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add docs/diagrams/*.svg
-          git commit -m "Auto-generated architecture diagram" || echo "No changes to commit"
-          git push origin HEAD:main
 
