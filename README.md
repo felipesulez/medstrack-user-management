@@ -101,7 +101,7 @@ sin introducir refactorizaciones estructurales.
 [![Medstrack Architecture](docs/architecture/medstrack-architecture.svg)](docs/architecture/medstrack-architecture.svg)
 
 ---
-# Documentación de pruebas de integración del MVP de registro de usuarios
+## Documentación de pruebas de integración del MVP de registro de usuarios
 
 
 En Medstrack, el **módulo de registro de usuarios** es la puerta de entrada a la plataforma, gestionando datos confidenciales como correos electrónicos y contraseñas. Para garantizar su disponibilidad en producción, realizamos un conjunto completo de 10 pruebas de integración con `curl`, estas pruebas validan las funcionalidades principales, los casos extremos, las reglas de validación y la gestión de errores, alineándose con las mejores prácticas como **TDD** (Desarrollo Dirigido por Pruebas) y las canalizaciones de CI/CD.
