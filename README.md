@@ -106,7 +106,7 @@ sin introducir refactorizaciones estructurales.
 
 En Medstrack, el **módulo de registro de usuarios** es la puerta de entrada a la plataforma, gestionando datos confidenciales como correos electrónicos y contraseñas. Para garantizar su disponibilidad en producción, realizamos un conjunto completo de 10 pruebas de integración con `curl`, estas pruebas validan las funcionalidades principales, los casos extremos, las reglas de validación y la gestión de errores, alineándose con las mejores prácticas como **TDD** (Desarrollo Dirigido por Pruebas) y las canalizaciones de CI/CD.
 
-Esta documentación proporciona **casos de prueba reproducibles**, resultados esperados y resultados reales de la ejecución. Todas las pruebas se ejecutaron en una instancia local de Spring Boot (`http://localhost:808`), utilizando Jakarta Validation para las comprobaciones de entrada y un `GlobalExceptionHandle` personalizado para obtener respuestas de error consistentes. Los resultados confirman una cobertura del 100 % de las rutas críticas, sin regresiones tras las recientes mejoras del controlador.
+Esta documentación proporciona **casos de prueba reproducibles**, resultados esperados y resultados reales de la ejecución. Todas las pruebas se ejecutaron en una instancia local de Spring Boot (`http://localhost:8080`), utilizando Jakarta Validation para las comprobaciones de entrada y un `GlobalExceptionHandle` personalizado para obtener respuestas de error consistentes. Los resultados confirman una cobertura del 100 % de las rutas críticas, sin regresiones tras las recientes mejoras del controlador.
 
 ---
 
