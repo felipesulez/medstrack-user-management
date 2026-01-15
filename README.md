@@ -224,8 +224,8 @@ curl -X POST http://localhost:8080/api/usuarios/registro \
 - **Comando curl:**
 ````bash
 curl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d '{"correo": "mvp4@medstrack.com", "nombre": "Test", "password": "password123456"}' -v
+  -H "Content-Type: application/json" \
+  -d '{"correo": "mvp4@medstrack.com", "nombre": "Test", "password": "password123456"}' -v
 ````
 **Salida esperada:** HTTP 400; JSON con error de longitud de contraseña.
 
@@ -243,8 +243,8 @@ curl -X POST http://localhost:8080/api/usuarios/registro \
 - **Comando curl:**
 ````bash
 curl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d '{"correo": "mvp1@medstrack.com", "nombre": "Duplicado", "password": "password123"}' -v
+  -H "Content-Type: application/json" \
+  -d '{"correo": "mvp1@medstrack.com", "nombre": "Duplicado", "password": "password123"}' -v
 ````
 **Salida esperada:** HTTP 409; JSON con `BUSINESS_ERROR`.
 
@@ -262,8 +262,8 @@ curl -X POST http://localhost:8080/api/usuarios/registro \
 - **Comando curl:**
 ````bash
 curl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d 'esto definitivamente no es JSON { inválido' -v
+  -H "Content-Type: application/json" \
+  -d 'esto definitivamente no es JSON { inválido' -v
 ````
 **Salida esperada:** HTTP 400; JSON con `INVALID_JSON`.
 
@@ -281,8 +281,8 @@ curl -X POST http://localhost:8080/api/usuarios/registro \
 - **Comando curl:**
 ````bash
 curl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d '{"nombre": "Sin correo", "password": "password123"}' -v
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "Sin Correo", "password": "password123"}' -v
 ````
 **Salida esperada:** HTTP 400; JSON con error de correo vacío.
 
@@ -300,8 +300,8 @@ curl -X POST http://localhost:8080/api/usuarios/registro \
 - **Comando curl:**
 ````bash
 curl -X POST http://localhost:8080/api/usuarios/registro \
-  -H "Tipo de contenido: aplicación/json" \
-  -d '{"correo": "emailinvalido", "nombre": "", "contraseña": "123"}' -v
+  -H "Content-Type: application/json" \
+  -d '{"correo": "emailinvalido", "nombre": "", "password": "123"}' -v
 ````
 **Salida esperada:** HTTP 400; JSON con varios campos erróneos.
 
