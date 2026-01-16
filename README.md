@@ -106,7 +106,7 @@ sin introducir refactorizaciones estructurales.
 
 En Medstrack, el **módulo de registro de usuarios** es la puerta de entrada a la plataforma, gestionando datos confidenciales como correos electrónicos y contraseñas. Para garantizar su disponibilidad en producción, realizamos un conjunto completo de 10 pruebas de integración con `curl`, estas pruebas validan las funcionalidades principales, los casos extremos, las reglas de validación y la gestión de errores, alineándose con las mejores prácticas como **TDD** (Desarrollo Dirigido por Pruebas) y las canalizaciones de CI/CD.
 
-Esta documentación proporciona **casos de prueba reproducibles**, resultados esperados y resultados reales de la ejecución. Todas las pruebas se ejecutaron en una instancia local de Spring Boot (`http://localhost:808`), utilizando Jakarta Validation para las comprobaciones de entrada y un `GlobalExceptionHandle` personalizado para obtener respuestas de error consistentes. Los resultados confirman una cobertura del 100 % de las rutas críticas, sin regresiones tras las recientes mejoras del controlador.
+Esta documentación proporciona **casos de prueba reproducibles**, resultados esperados y resultados reales de la ejecución. Todas las pruebas se ejecutaron en una instancia local de Spring Boot (`http://localhost:8080`), utilizando Jakarta Validation para las comprobaciones de entrada y un `GlobalExceptionHandle` personalizado para obtener respuestas de error consistentes. Los resultados confirman una cobertura del 100 % de las rutas críticas, sin regresiones tras las recientes mejoras del controlador.
 
 ---
 
@@ -223,15 +223,15 @@ curl -X POST http://localhost:8080/api/usuarios/registro \
 - **Descripción:** Valida la restricción máxima `@Size` para evitar entradas demasiado largas.
 - **Comando curl:**
 ````bash
-textcurl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d '{"correo": "mvp4@medstrack.com", "nombre": "Test", "password": "password123456"}' -v
+curl -X POST http://localhost:8080/api/usuarios/registro \
+  -H "Content-Type: application/json" \
+  -d '{"correo": "mvp4@medstrack.com", "nombre": "Test", "password": "password123456"}' -v
 ````
 **Salida esperada:** HTTP 400; JSON con error de longitud de contraseña.
 
 **Resultado real (de la ejecución):**
 ````bash
-text< HTTP/1.1 400
+< HTTP/1.1 400
 ... (encabezados)
 {"success":false,"error":"VALIDATION_ERROR","message":"Datos inválidos en la solicitud","fields":{"password":"La contraseña debe tener entre 8 y 12 caracteres"}}
 ````
@@ -242,15 +242,15 @@ text< HTTP/1.1 400
 - **Descripción:** Comprueba la lógica de negocio para la unicidad del correo electrónico mediante una verificación de la base de datos.
 - **Comando curl:**
 ````bash
-textcurl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d '{"correo": "mvp1@medstrack.com", "nombre": "Duplicado", "password": "password123"}' -v
+curl -X POST http://localhost:8080/api/usuarios/registro \
+  -H "Content-Type: application/json" \
+  -d '{"correo": "mvp1@medstrack.com", "nombre": "Duplicado", "password": "password123"}' -v
 ````
 **Salida esperada:** HTTP 409; JSON con `BUSINESS_ERROR`.
 
 **Resultado real (de la ejecución):**
 ````bash
-text< HTTP/1.1 409
+< HTTP/1.1 409
 ... (encabezados)
 {"success":false,"error":"BUSINESS_ERROR","message":"El correo ya está registrado","fields":null}
 ````
@@ -261,15 +261,15 @@ text< HTTP/1.1 409
 - **Descripción:** Garantiza la resiliencia ante cuerpos de solicitud no válidos.
 - **Comando curl:**
 ````bash
-textcurl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d 'esto definitivamente no es JSON { inválido' -v
+curl -X POST http://localhost:8080/api/usuarios/registro \
+  -H "Content-Type: application/json" \
+  -d 'esto definitivamente no es JSON { inválido' -v
 ````
 **Salida esperada:** HTTP 400; JSON con `INVALID_JSON`.
 
 **Resultado real (de la ejecución):**
 ````bash
-text< HTTP/1.1 400
+< HTTP/1.1 400
 ... (encabezados)
 {"success":false,"error":"INVALID_JSON","message":"El formato JSON es inválido o el cuerpo de la solicitud no puede ser leído","fields":null}
 ````
@@ -280,15 +280,15 @@ text< HTTP/1.1 400
 - **Descripción:** Verifica el manejo de los campos obligatorios omitidos.
 - **Comando curl:**
 ````bash
-textcurl -X POST http://localhost:8080/api/usuarios/registro \
--H "Content-Type: application/json" \
--d '{"nombre": "Sin correo", "password": "password123"}' -v
+curl -X POST http://localhost:8080/api/usuarios/registro \
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "Sin Correo", "password": "password123"}' -v
 ````
 **Salida esperada:** HTTP 400; JSON con error de correo vacío.
 
 **Resultado real (de la ejecución):**
 ````bash
-text< HTTP/1.1 400
+< HTTP/1.1 400
 ... (encabezados)
 {"success":false,"error":"VALIDATION_ERROR","message":"Datos inválidos en la solicitud","fields":{"correo":"El correo no puede estar vacío"}}
 ````
@@ -299,15 +299,15 @@ text< HTTP/1.1 400
 - **Descripción:** prueba la agregación de múltiples fallas de validación.
 - **Comando curl:**
 ````bash
-textcurl -X POST http://localhost:8080/api/usuarios/registro \
-  -H "Tipo de contenido: aplicación/json" \
-  -d '{"correo": "emailinvalido", "nombre": "", "contraseña": "123"}' -v
+curl -X POST http://localhost:8080/api/usuarios/registro \
+  -H "Content-Type: application/json" \
+  -d '{"correo": "emailinvalido", "nombre": "", "password": "123"}' -v
 ````
 **Salida esperada:** HTTP 400; JSON con varios campos erróneos.
 
 **Resultado real (de la ejecución):**
 ````bash
-texto< HTTP/1.1 400
+< HTTP/1.1 400
 ... (encabezados)
 {"success":false,"error":"VALIDATION_ERROR","message":"Datos inválidos en la solicitud","fields":{"password":"La contraseña debe tener entre 8 y 12 caracteres","correo":"El correo no es válido","nombre":"El nombre no puede estar vacio"}}
 ````
