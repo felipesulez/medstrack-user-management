@@ -4,6 +4,7 @@ import com.medstrack.Medstrack.dto.RegisterUserDTO;
 import com.medstrack.Medstrack.response.ApiResponse;
 import com.medstrack.Medstrack.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class UserController {
 
         service.registrarUsuario(dto);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.success("Usuario registrado correctamente")
         );
     }
