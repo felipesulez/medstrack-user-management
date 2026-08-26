@@ -1,7 +1,8 @@
 package com.medstrack.Medstrack.controller;
 
-import com.medstrack.Medstrack.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.medstrack.Medstrack.dto.RegisterUserDTO;
+import com.medstrack.Medstrack.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,11 +11,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@AutoConfigureMockMvc(addFilters = false) // 🛡️ Desactiva la seguridad para este test
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
     @Autowired
@@ -38,12 +41,15 @@ class UserControllerTest {
         }
         """;
 
-        // 2. Ejecución y Verificación
+        // 2. Ejecución y verificación
         mockMvc.perform(
                         post("/api/usuarios/registro")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestJson)
                 )
-                .andExpect(status().isOk()); // ✅ Cambiado a isOk porque tu controller devuelve 200
+                .andExpect(status().isCreated());
+
+        // 3. Verifica que el controller llamó al servicio
+        verify(userService).registrarUsuario(any(RegisterUserDTO.class));
     }
 }
