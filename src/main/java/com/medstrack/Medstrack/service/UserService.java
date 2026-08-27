@@ -10,30 +10,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
-        this.repository = repository;
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void registrarUsuario(RegisterUserDTO dto) {
+    public void registerUser(RegisterUserDTO dto) {
 
-        // 1. Validar si el correo ya existe (ERROR DE NEGOCIO)
-        if (repository.findByCorreo(dto.getCorreo()).isPresent()) {
-            throw new EmailAlreadyExistsException("El correo ya está registrado");
+        // 1. Check if the email is already registered
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email is already registered");
         }
 
-        // 2. Mapear DTO → Entidad
+        // 2. Map DTO to entity
         User user = new User();
-        user.setCorreo(dto.getCorreo());
-        user.setNombre(dto.getNombre());
+        user.setEmail(dto.getEmail());
+        user.setName(dto.getName());
 
-        // 3. Encriptar password
+        // 3. Encode password
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // 4. Guardar
-        repository.save(user);
+        // 4. Persist user
+        userRepository.save(user);
     }
 }

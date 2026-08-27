@@ -1,39 +1,41 @@
 package com.medstrack.Medstrack.dto;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class RegisterUserDTO {
 
-    @NotBlank(message = "El correo no puede estar vacio")
-    @Email(message = "El correo no es valido")
-    private String correo;
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Email is not valid")
+    private String email;
 
-    @NotBlank(message = "El nombre no puede estar vacio")
-    private String nombre;
+    @NotBlank(message = "Name cannot be blank")
+    private String name;
 
-    @NotBlank(message = "El password no puede estar vacio")
-    @Size(min=8, max = 12, message = "El password debe tener entre 8 y 12 caracteres")
+    @NotBlank(message = "Password cannot be blank")
+    @Size(min = 8, max = 12, message = "Password must be between 8 and 12 characters")
     private String password;
 
-    //Getters and Setters
+    // Getters and Setters
 
-    public String getCorreo(){
-        return correo;
-    }
-    public void setCorreo(String correo){
-        this.correo=correo;
+    public String getEmail() {
+        return email;
     }
 
-    public String getNombre(){
-        return nombre;
-    }
-    public void setNombre(String nombre){
-        this.nombre = nombre;
-
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getPassword(){
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getPassword() {
         return password;
     }
 

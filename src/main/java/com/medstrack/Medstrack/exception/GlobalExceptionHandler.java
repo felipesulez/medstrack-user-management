@@ -15,7 +15,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * Maneja errores de validación de campos (@NotBlank, @Email, @Size, etc.)
+     * Handles validation errors from @NotBlank, @Email, @Size, etc.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -25,8 +25,9 @@ public class GlobalExceptionHandler {
             String field = error.getField();
             String message = error.getDefaultMessage();
 
-            // Si ya existe un error para este campo, concatena con "; "
+            // If the field already has an error, concatenate messages with "; "
             String existingMessage = fieldErrors.get(field);
+
             if (existingMessage == null) {
                 fieldErrors.put(field, message);
             } else {
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
         ApiError response = new ApiError(
                 false,
                 "VALIDATION_ERROR",
-                "Datos inválidos en la solicitud",
+                "Invalid request data",
                 fieldErrors.isEmpty() ? null : fieldErrors
         );
 
@@ -45,14 +46,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja JSON malformado o cuerpo de solicitud inválido (ej: texto plano en lugar de JSON)
+     * Handles malformed JSON or an invalid request body.
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleJsonParseError(HttpMessageNotReadableException ex) {
         ApiError response = new ApiError(
                 false,
                 "INVALID_JSON",
-                "El formato JSON es inválido o el cuerpo de la solicitud no puede ser leído",
+                "Invalid JSON format or request body could not be read",
                 null
         );
 
@@ -60,7 +61,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja error de negocio: correo ya registrado
+     * Handles the business error when an email is already registered.
      */
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
@@ -75,14 +76,14 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handler genérico para cualquier excepción no capturada específicamente
+     * Handles unexpected exceptions that are not explicitly handled.
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericErrors(Exception ex) {
         ApiError response = new ApiError(
                 false,
                 "INTERNAL_ERROR",
-                "Ocurrió un error inesperado en el servidor",
+                "An unexpected error occurred on the server",
                 null
         );
 

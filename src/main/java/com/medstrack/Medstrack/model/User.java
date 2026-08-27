@@ -8,30 +8,34 @@ import jakarta.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private long id;
-    private String nombre;
-    @Column(unique = true)
-    private String correo;
+
+    @Column(name = "nombre")
+    private String name;
+
+    @Column(name = "correo", unique = true)
+    private String email;
+
     private String password;
 
     public User() {}
 
-    public User(long id, String nombre, String correo, String password){
+    public User(long id, String name, String email, String password){
         this.id = id;
-        this.nombre = nombre;
-        this.correo = correo;
+        this.name = name;
+        this.email = email;
         this.password = password;
     }
+
 
     public long getId(){ return id;}
     public void setId(long id){this.id = id;}
 
-    public String getNombre() {return nombre;}
-    public void setNombre(String nombre) {this.nombre = nombre;}
+    public String getName() {return name;}
+    public void setName(String name) {this.name = name;}
 
-    public String getCorreo(){return correo;}
-    public void setCorreo(String correo){this.correo = correo;}
+    public String getEmail(){return email;}
+    public void setEmail(String email){this.email = email;}
 
     public String getPassword(){return password;}
     public void setPassword(String password){ this.password = password;}

@@ -30,26 +30,26 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void deberiaRegistrarUsuarioCorrectamente() throws Exception {
+    void shouldRegisterUserSuccesfully() throws Exception {
 
-        // 1. Datos de entrada (JSON)
+
         String requestJson = """
         {
-          "correo": "felipe@medstrack.com",
-          "nombre": "Felipe",
+          "email": "felipe@medstrack.com",
+          "name": "Felipe",
           "password": "Medstrack1"
         }
         """;
 
-        // 2. Ejecución y verificación
+
         mockMvc.perform(
-                        post("/api/usuarios/registro")
+                        post("/api/users/register")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestJson)
                 )
                 .andExpect(status().isCreated());
 
-        // 3. Verifica que el controller llamó al servicio
-        verify(userService).registrarUsuario(any(RegisterUserDTO.class));
+
+        verify(userService).registerUser(any(RegisterUserDTO.class));
     }
 }

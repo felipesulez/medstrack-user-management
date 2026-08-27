@@ -9,21 +9,22 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-    // 🔐 Bean para encriptar contraseñas
+
+    // Password encoder bean
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-
     }
 
-    // 🔐 Configuración de seguridad para permitir todas las rutas (por ahora)
+    // Security configuration: all endpoints are currently public
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable() // desactiva CSRF para pruebas
+                .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // permite todas las peticiones
+                        .anyRequest().permitAll()
                 );
+
         return http.build();
     }
 }

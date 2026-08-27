@@ -36,3 +36,8 @@ docs/diagrams/*.png
 # Generated project snapshots
 medstrack-completo.zip
 medstrack_snapshot.txt
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
