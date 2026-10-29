@@ -41,3 +41,10 @@ medstrack_snapshot.txt
 .env
 .env.*
 !.env.example
+
+# secretos y archivos locales
+.env*
+!.env.example
+medstrack_snapshot.txt
+generate_snapshot.sh
+*.zip
